@@ -39,12 +39,12 @@ def action_wrapper(hermes, intentMessage, conf):
      if len(intentMessage.slots.device_name) > 0:
         myDeviceId = intentMessage.slots.device_name.first().value 
         myDeviceName = intentMessage.slots.device_name.first().value
-# put this line back one once the bug is resolved:
+# put this line back one once the bug is resolved: https://github.com/snipsco/snips-issues/issues/68
 #        myDeviceName = intentMessage.slots.device_name.first().raw_value 
     
      payload = json.dumps({"entity_id": myDeviceId})
      url = 'http://'+ conf['secret']['haipaddress'] + ':' + conf['secret']['haport'] + '/api/services/homeassistant/turn_' + myState
-     header = {'x-ha-access': conf['secret']['homeassistantapipassword'], 'Content-Type': 'application/json'}
+     header = {'x-ha-access': conf['secret']['haapipassword'], 'Content-Type': 'application/json'}
      response = post(url, headers=header, data=payload)
     
      hermes.publish_end_session(current_session_id, "Turning " + myState + " " + myDeviceName)
