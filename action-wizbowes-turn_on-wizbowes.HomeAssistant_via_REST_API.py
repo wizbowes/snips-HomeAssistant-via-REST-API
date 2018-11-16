@@ -29,7 +29,7 @@ def subscribe_intent_callback(hermes, intentMessage):
 
 
 def action_wrapper(hermes, intentMessage, conf):
-    from requests import post
+    from requests import post, get
     import json
     
     current_session_id = intentMessage.session_id
@@ -41,16 +41,23 @@ def action_wrapper(hermes, intentMessage, conf):
         myDeviceName = intentMessage.slots.device_name.first().value
 # put this line back one once the bug is resolved: https://github.com/snipsco/snips-issues/issues/68
 #        myDeviceName = intentMessage.slots.device_name.first().raw_value 
-    
-     payload = json.dumps({"entity_id": myDeviceId})
-     url = 'http://'+ conf['secret']['haipaddress'] + ':' + conf['secret']['haport'] + '/api/services/homeassistant/turn_' + myState
-     header = {'x-ha-access': conf['secret']['haapipassword'], 'Content-Type': 'application/json'}
-     response = post(url, headers=header, data=payload)
-    
-     hermes.publish_end_session(current_session_id, "Turning " + myState + " " + myDeviceName)
+
+
+     if myState != "query":
+       payload = json.dumps({"entity_id": myDeviceId})
+       url = 'http://'+ conf['secret']['haipaddress'] + ':' + conf['secret']['haport'] + '/api/services/homeassistant/turn_' + myState
+       header = {'x-ha-access': conf['secret']['haapipassword'], 'Content-Type': 'application/json'}
+       response = post(url, headers=header, data=payload)
+       hermes.publish_end_session(current_session_id, "Turning " + myState + " " + myDeviceName)
+     else:
+       url = 'http://'+ conf['secret']['haipaddress'] + ':' + conf['secret']['haport'] + '/api/states/' + myDeviceId
+       header = {'x-ha-access': conf['secret']['haapipassword'], 'Content-Type': 'application/json'}
+       response = get(url, headers=header)
+       hermes.publish_end_session(current_session_id, myDeviceName + " is " + response.json()['state'])
     except:
-     hermes.publish_end_session(current_session_id, "Sorry, something went wrong")
-    
+       hermes.publish_end_session(current_session_id, "Sorry, something went wrong")
+
+ 
 
 
 if __name__ == "__main__":
