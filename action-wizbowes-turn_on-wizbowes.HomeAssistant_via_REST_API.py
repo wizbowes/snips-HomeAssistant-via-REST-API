@@ -39,7 +39,8 @@ def action_wrapper(hermes, intentMessage, conf):
         myState = intentMessage.slots.state.first().value 
      if len(intentMessage.slots.device_name) > 0:
         myDeviceId = intentMessage.slots.device_name.first().value 
-        myDeviceName = intentMessage.slots.device_name.first().value
+#        myDeviceName = intentMessage.slots.device_name.first().value
+        myDeviceName = intentMessage.slots.device_name[0].raw_value 
 # put this line back one once the bug is resolved: https://github.com/snipsco/snips-issues/issues/68
 #        myDeviceName = intentMessage.slots.device_name.first().raw_value 
      header = {'x-ha-access': conf['secret']['haapipassword'], 'Content-Type': 'application/json'}
